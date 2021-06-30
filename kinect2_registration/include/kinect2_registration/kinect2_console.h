@@ -20,7 +20,8 @@
 #define __KINECT2_CONSOLE_H__
 
 #include <string>
-#include <ros/console.h>
+#include <rclcpp/logging.hpp>
+#include <rcutils/logging_macros.h>
 
 // Set this to '0' to disable the extended colored output
 #define EXTENDED_OUTPUT 1
@@ -37,12 +38,12 @@
 #define FG_CYAN         "\033[36m"
 
 const std::string getFunctionName(const std::string &name);
-#define OUT_AUX(FUNC_COLOR, MSG_COLOR, STREAM, MSG) STREAM(FUNC_COLOR "[" << getFunctionName(__PRETTY_FUNCTION__) << "] " MSG_COLOR << MSG << NO_COLOR)
+#define OUT_AUX(LOGGER, FUNC_COLOR, MSG_COLOR, STREAM, MSG) STREAM(LOGGER, FUNC_COLOR "[" << getFunctionName(__PRETTY_FUNCTION__) << "] " MSG_COLOR << MSG << NO_COLOR)
 
-#define OUT_DEBUG(msg) OUT_AUX(FG_BLUE, NO_COLOR, ROS_DEBUG_STREAM, msg)
-#define OUT_INFO(msg) OUT_AUX(FG_GREEN, NO_COLOR, ROS_INFO_STREAM, msg)
-#define OUT_WARN(msg) OUT_AUX(FG_YELLOW, FG_YELLOW, ROS_WARN_STREAM, msg)
-#define OUT_ERROR(msg) OUT_AUX(FG_RED, FG_RED, ROS_ERROR_STREAM, msg)
+#define OUT_DEBUG(logger, msg) OUT_AUX(logger, FG_BLUE, NO_COLOR, RCLCPP_DEBUG_STREAM, msg)
+#define OUT_INFO(logger, msg) OUT_AUX(logger, FG_GREEN, NO_COLOR, RCLCPP_INFO_STREAM, msg)
+#define OUT_WARN(logger, msg) OUT_AUX(logger, FG_YELLOW, FG_YELLOW, RCLCPP_WARN_STREAM, msg)
+#define OUT_ERROR(logger, msg) OUT_AUX(logger, FG_RED, FG_RED, RCLCPP_ERROR_STREAM, msg)
 
 #else
 

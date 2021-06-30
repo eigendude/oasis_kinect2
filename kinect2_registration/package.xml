@@ -1,21 +1,26 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>kinect2_registration</name>
   <version>0.0.1</version>
   <description>The kinect2_registration package</description>
 
+  <author email="wiedemeyer@informatik.uni-bremen.de">Thiemo Wiedemeyer</author>
   <maintainer email="wiedemeyer@informatik.uni-bremen.de">Thiemo Wiedemeyer</maintainer>
 
   <license>Apache 2.0</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>eigen3_cmake_module</buildtool_depend>
 
-  <build_depend>roscpp</build_depend>
-  <build_depend>cv_bridge</build_depend><!-- Depend on cv_bridge instead of libopencv-dev to support ROS Hydro.-->
+  <build_depend>eigen</build_depend>
+  <build_depend>libomp-dev</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>libopencv-dev</build_depend>
 
-  <run_depend>roscpp</run_depend>
-  <run_depend>cv_bridge</run_depend><!-- Depend on cv_bridge instead of libopencv-dev to support ROS Hydro.-->
+  <exec_depend>rclcpp</exec_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

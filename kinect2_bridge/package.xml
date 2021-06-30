@@ -1,39 +1,33 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>kinect2_bridge</name>
   <version>0.0.1</version>
   <description>The kinect2_bridge package</description>
 
+  <author email="wiedemeyer@informatik.uni-bremen.de">Thiemo Wiedemeyer</author>
   <maintainer email="wiedemeyer@informatik.uni-bremen.de">Thiemo Wiedemeyer</maintainer>
 
   <license>Apache 2.0</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>roscpp</build_depend>
-  <build_depend>rostime</build_depend>
-  <build_depend>tf</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>message_filters</build_depend>
   <build_depend>compressed_depth_image_transport</build_depend>
   <build_depend>kinect2_registration</build_depend>
-  <build_depend>nodelet</build_depend>
-  <build_depend>cv_bridge</build_depend><!-- Depend on cv_bridge instead of libopencv-dev to support ROS Hydro.-->
+  <build_depend>libfreenect2</build_depend>
+  <build_depend>libopencv-dev</build_depend>
+  <build_depend>message_filters</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>tf2</build_depend>
 
-  <run_depend>message_runtime</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>rostime</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>compressed_depth_image_transport</run_depend>
-  <run_depend>kinect2_registration</run_depend>
-  <run_depend>nodelet</run_depend>
-  <run_depend>depth_image_proc</run_depend>
-  <run_depend>cv_bridge</run_depend><!-- Depend on cv_bridge instead of libopencv-dev to support ROS Hydro.-->
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <export>
-    <nodelet plugin="${prefix}/nodelet_plugins.xml" />
+    <build_type>ament_cmake</build_type>
+    <!--<nodelet plugin="${prefix}/nodelet_plugins.xml" />-->
   </export>
 </package>

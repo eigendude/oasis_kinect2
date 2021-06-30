@@ -52,14 +52,6 @@ the [issue page of iai_kinect2](https://github.com/code-iai/iai_kinect2/issues) 
 
 Point clouds are only published when the launch file is used. Make sure to start kinect2_bridge with `roslaunch kinect2_bridge kinect2_bridge.launch`.
 
-#### Will it work with OpenCV 3.0
-
-Short answer: No.
-
-Long answer: Yes, it is possible to compile this package with OpenCV 3.0, but it will not work.
-This is because cv_bridge is used, which itself is compiled with OpenCV 2.4.x in ROS Indigo/Jade and
-linking against both OpenCV versions is not possible. Working support for OpenCV 3.0 might come with a future ROS release.
-
 #### kinect2_bridge is not working / crashing, what is wrong?
 
 There are many reasons why `kinect2_bridge` might not working. The first thing to find out whether the problem is related to `kinect2_bridge` or `libfreenect2`.

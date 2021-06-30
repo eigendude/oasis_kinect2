@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kinect2_viewer CXX)
 
+cmake_policy(SET CMP0057 NEW)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBT_USE_DOUBLE_PRECISION -Wall")
 # Unused warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuninitialized -Winit-self -Wunused-function -Wunused-label -Wunused-variable -Wunused-but-set-variable -Wunused-but-set-parameter")
@@ -16,7 +18,17 @@ ELSE()
   MESSAGE(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 ENDIF()
 
-find_package(catkin REQUIRED COMPONENTS roscpp rostime std_msgs sensor_msgs message_filters cv_bridge image_transport compressed_image_transport compressed_depth_image_transport kinect2_bridge)
+find_package(compressed_depth_image_transport REQUIRED)
+find_package(compressed_image_transport REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(image_transport REQUIRED)
+find_package(kinect2_bridge REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(rclcpp REQUIRED)
+#find_package(rostime REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
@@ -31,22 +43,6 @@ endif()
 ## Declare ROS messages, services and actions ##
 ################################################
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES kinect2_viewer
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
-)
-
 ###########
 ## Build ##
 ###########
@@ -60,7 +56,6 @@ add_custom_target(additional_files_${PROJECT_NAME}
 )
 
 include_directories(include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${kinect2_bridge_INCLUDE_DIRS}
@@ -68,7 +63,6 @@ include_directories(include
 
 add_executable(kinect2_viewer src/viewer.cpp)
 target_link_libraries(kinect2_viewer
-  ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
   ${kinect2_bridge_LIBRARIES}
@@ -78,26 +72,23 @@ target_link_libraries(kinect2_viewer
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # install(PROGRAMS
 #   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   DESTINATION bin/${PROJECT_NAME}
 # )
 
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_viewer
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   ARCHIVE DESTINATION lib/${PROJECT_NAME}
+#   LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   DESTINATION include/${PROJECT_NAME}
 #   FILES_MATCHING PATTERN "*.h"
 #   PATTERN ".svn" EXCLUDE
 # )
@@ -106,18 +97,11 @@ install(TARGETS kinect2_viewer
 # install(FILES
 #   # myfile1
 #   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+#   DESTINATION share/${PROJECT_NAME}
 # )
 
-#############
-## Testing ##
-#############
+##############################
+## Declare an ament Package ##
+##############################
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_kinect2_bridge.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+ament_package()
