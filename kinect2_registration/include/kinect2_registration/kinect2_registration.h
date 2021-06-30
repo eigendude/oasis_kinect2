@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <opencv2/opencv.hpp>
+#include <rclcpp/logger.hpp>
 
 class DepthRegistration
 {
@@ -51,7 +52,7 @@ public:
 
   virtual bool registerDepth(const cv::Mat &depth, cv::Mat &registered) = 0;
 
-  static DepthRegistration *New(Method method = DEFAULT);
+  static DepthRegistration *New(rclcpp::Logger logger, Method method = DEFAULT);
 };
 
 #endif //__KINECT2_REGISTRATION_H__

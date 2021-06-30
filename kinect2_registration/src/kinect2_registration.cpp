@@ -52,7 +52,7 @@ bool DepthRegistration::init(const cv::Mat &cameraMatrixRegistered, const cv::Si
   return init(deviceId);
 }
 
-DepthRegistration *DepthRegistration::New(Method method)
+DepthRegistration *DepthRegistration::New(rclcpp::Logger logger, Method method)
 {
   if(method == DEFAULT)
   {
@@ -66,22 +66,22 @@ DepthRegistration *DepthRegistration::New(Method method)
   switch(method)
   {
   case DEFAULT:
-    OUT_ERROR("No default registration method available!");
+    OUT_ERROR(logger, "No default registration method available!");
     break;
   case CPU:
 #ifdef DEPTH_REG_CPU
-    OUT_INFO("Using CPU registration method!");
+    OUT_INFO(logger, "Using CPU registration method!");
     return new DepthRegistrationCPU();
 #else
-    OUT_ERROR("CPU registration method not available!");
+    OUT_ERROR(logger, "CPU registration method not available!");
     break;
 #endif
   case OPENCL:
 #ifdef DEPTH_REG_OPENCL
-    OUT_INFO("Using OpenCL registration method!");
+    OUT_INFO(logger, "Using OpenCL registration method!");
     return new DepthRegistrationOpenCL();
 #else
-    OUT_ERROR("OpenCL registration method not available!");
+    OUT_ERROR(logger, "OpenCL registration method not available!");
     break;
 #endif
   }

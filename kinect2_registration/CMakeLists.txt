@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(kinect2_registration CXX)
+project(kinect2_registration C CXX)
+
+cmake_policy(SET CMP0057 NEW)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBT_USE_DOUBLE_PRECISION -Wall")
 # Unused warnings
@@ -19,14 +21,17 @@ ENDIF()
 # additional cmake modules
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(ament_cmake REQUIRED)
 find_package(cmake_modules QUIET)
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
 find_package(Eigen3)
-find_package(OpenCL)
+#find_package(OpenCL)
+find_package(rclcpp REQUIRED)
+find_package(rosidl_typesupport_interface REQUIRED) # TODO
+find_package(rmw REQUIRED) # TODO
 
 if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -74,23 +79,6 @@ endif()
 ## Declare ROS messages, services and actions ##
 ################################################
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES kinect2_registration
-#  CATKIN_DEPENDS other_catkin_pkg
-  DEPENDS ${EXPORTED_DEPENDENCIES}
-  CFG_EXTRAS kinect2_registration.cmake
-)
-
 ###########
 ## Build ##
 ###########
@@ -104,8 +92,10 @@ add_custom_target(additional_files_${PROJECT_NAME}
 )
 
 include_directories(include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${rclcpp_INCLUDE_DIRS}
+  ${rosidl_typesupport_interface_INCLUDE_DIRS}
+  ${rmw_INCLUDE_DIRS}
   "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
 )
 
@@ -121,7 +111,6 @@ endif()
 
 add_library(kinect2_registration SHARED src/kinect2_registration.cpp ${MODULES})
 target_link_libraries(kinect2_registration
-  ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${MODULE_LIBS}
 )
@@ -130,26 +119,23 @@ target_link_libraries(kinect2_registration
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # install(PROGRAMS
 #   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   DESTINATION lib/${PROJECT_NAME}
 # )
 
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_registration
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+#   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DESTINATION include/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
@@ -158,18 +144,11 @@ install(DIRECTORY include/${PROJECT_NAME}/
 # install(FILES
 #   # myfile1
 #   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+#   DESTINATION share/${PROJECT_NAME}
 # )
 
-#############
-## Testing ##
-#############
+##############################
+## Declare an ament Package ##
+##############################
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_kinect2_bridge.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+ament_package()

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(kinect2_bridge CXX)
+project(kinect2_bridge C CXX)
+
+cmake_policy(SET CMP0057 NEW)
+
+# Additional cmake modules
+LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBT_USE_DOUBLE_PRECISION -Wall")
 # Unused warnings
@@ -7,7 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuninitialized -Winit-self -Wunused-fun
 # Additional warnings
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Warray-bounds -Wtype-limits -Wreturn-type -Wsequence-point -Wparentheses -Wmissing-braces -Wchar-subscripts -Wswitch -Wwrite-strings -Wenum-compare -Wempty-body -Wlogical-op")
 
-# Check for c++17 support
+# Check for C++17 support
 INCLUDE(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 IF(COMPILER_SUPPORTS_CXX17)
@@ -18,7 +23,22 @@ ENDIF()
 
 find_package(freenect2 REQUIRED HINTS "$ENV{HOME}/freenect2")
 
-find_package(catkin REQUIRED COMPONENTS roscpp rostime tf std_msgs sensor_msgs nodelet cv_bridge compressed_depth_image_transport kinect2_registration)
+find_package(ament_cmake REQUIRED)
+find_package(compressed_depth_image_transport REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(kinect2_registration REQUIRED)
+find_package(LibUSB REQUIRED) # TODO: This should come from libfreenect2
+#find_package(nodelet REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(rcl_interfaces REQUIRED) # TODO
+find_package(rclcpp REQUIRED)
+find_package(rcutils REQUIRED)
+find_package(rosidl_typesupport_interface REQUIRED) # TODO
+find_package(rmw REQUIRED) # TODO
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(TurboJPEG REQUIRED) # TODO: This should come from libfreenect2
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
@@ -26,22 +46,6 @@ find_package(OpenCV REQUIRED)
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
-
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES kinect2_bridge
-  CATKIN_DEPENDS kinect2_registration
-#  DEPENDS system_lib
-)
 
 ###########
 ## Build ##
@@ -57,10 +61,22 @@ add_custom_target(additional_files_${PROJECT_NAME}
 )
 
 include_directories(include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${freenect2_INCLUDE_DIRS}
   ${kinect2_registration_INCLUDE_DIRS}
+  # TODO
+  ${kinect2_registration_DIR}/../../../include
+  ${compressed_depth_image_transport_INCLUDE_DIRS}
+  # TODO
+  ${compressed_depth_image_transport_DIR}/../../../include
+  ${cv_bridge_INCLUDE_DIRS}
+  ${rcl_interfaces_INCLUDE_DIRS} # TODO
+  ${rclcpp_INCLUDE_DIRS}
+  ${rcutils_INCLUDE_DIRS}
+  ${rmw_INCLUDE_DIRS} # TODO
+  ${sensor_msgs_INCLUDE_DIRS}
+  ${std_msgs_INCLUDE_DIRS}
+  ${tf2_INCLUDE_DIRS}
 )
 
 if(DEPTH_REG_OPENCL)
@@ -71,46 +87,94 @@ if(DEPTH_REG_CPU)
 endif()
 add_definitions(-DK2_CALIB_PATH="${PROJECT_SOURCE_DIR}/data/")
 
-add_library(kinect2_bridge_nodelet SHARED src/kinect2_bridge.cpp)
+add_library(kinect2_bridge_nodelet SHARED
+  src/utils/time_utils.cpp
+  src/kinect2_bridge.cpp
+)
 target_link_libraries(kinect2_bridge_nodelet
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
+  ${OpenCV_LIBRARY}
   ${freenect2_LIBRARY}
   ${kinect2_registration_LIBRARY}
+  ${LibUSB_LIBRARIES}
+  ${compressed_depth_image_transport_LIBRARY}
+  ${cv_bridge_LIBRARY}
+  ${rclcpp_LIBRARY}
+  ${rcutils_LIBRARY}
+  ${sensor_msgs_LIBRARY}
+  ${std_msgs_LIBRARY}
+  ${tf2_LIBRARY}
+  ${TurboJPEG_LIBRARIES}
+  pthread
+)
+ament_target_dependencies(kinect2_bridge_nodelet
+  compressed_depth_image_transport
+  cv_bridge
+  kinect2_registration
+  #nodelet
+  rclcpp
+  rcutils
+  sensor_msgs
+  std_msgs
+  tf2
 )
 
-add_executable(kinect2_bridge src/kinect2_bridge.cpp)
+add_executable(kinect2_bridge
+  src/utils/time_utils.cpp
+  src/kinect2_bridge.cpp
+)
 target_link_libraries(kinect2_bridge
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
+  ${OpenCV_LIBRARY}
   ${freenect2_LIBRARY}
   ${kinect2_registration_LIBRARY}
+  # TODO
+  ${kinect2_registration_DIR}/../../../lib/kinect2_registration/libkinect2_registration.so
+  ${LibUSB_LIBRARIES}
+  ${compressed_depth_image_transport_LIBRARY}
+  ${cv_bridge_LIBRARY}
+  ${rclcpp_LIBRARY}
+  ${rcutils_LIBRARY}
+  ${sensor_msgs_LIBRARY}
+  ${std_msgs_LIBRARY}
+  ${tf2_LIBRARY}
+  ${TurboJPEG_LIBRARIES}
+  pthread
+)
+ament_target_dependencies(kinect2_bridge
+  compressed_depth_image_transport
+  cv_bridge
+  kinect2_registration
+  #nodelet
+  #rcl_interfaces
+  rclcpp
+  rcutils
+  #rosidl_typesupport_interface # TODO
+  #rmw # TODO
+  sensor_msgs
+  std_msgs
+  tf2
 )
 
 #############
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # install(PROGRAMS
 #   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   DESTINATION bin/${PROJECT_NAME}
 # )
 
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_bridge kinect2_bridge_nodelet
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DESTINATION include/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
@@ -119,23 +183,39 @@ install(DIRECTORY include/${PROJECT_NAME}/
 install(DIRECTORY
   launch
   # myfile2
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 install(FILES
   nodelet_plugins.xml
   # myfile2
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install data files
+install(DIRECTORY
+  data
+  DESTINATION share/${PROJECT_NAME}
 )
 
 #############
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_kinect2_bridge.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+  # Copyright and license must be present in all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+
+  # The following line skips cpplint (only works in a git repo)
+  # Uncomment the line when this package is not in a git repo
+  #set(ament_cmake_cpplint_FOUND TRUE)
+
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+##############################
+## Declare an ament Package ##
+##############################
+
+ament_package()
