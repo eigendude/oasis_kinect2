@@ -21,6 +21,7 @@
 
 #include <string>
 #include <rclcpp/logging.hpp>
+#include <rcutils/logging_macros.h>
 
 // Set this to '0' to disable the extended colored output
 #define EXTENDED_OUTPUT 1
