@@ -254,7 +254,8 @@ private:
     double fps_limit, maxDepth, minDepth;
     bool use_png, bilateral_filter, edge_aware_filter;
     int32_t jpeg_quality, png_level, queueSize, reg_dev, depth_dev, worker_threads;
-    std::string depth_method, reg_method, calib_path, sensor, base_name;
+    std::string depth_method, calib_path, sensor, base_name;
+    std::string reg_method = "opencl";
 
     std::string depthDefault = "cpu";
     std::string regDefault = "default";
