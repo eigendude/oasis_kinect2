@@ -32,6 +32,7 @@ find_package(Eigen3)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_typesupport_interface REQUIRED) # TODO
 find_package(rmw REQUIRED) # TODO
+find_package(type_description_interfaces REQUIRED) # TODO
 
 if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -96,6 +97,7 @@ include_directories(include
   ${rclcpp_INCLUDE_DIRS}
   ${rosidl_typesupport_interface_INCLUDE_DIRS}
   ${rmw_INCLUDE_DIRS}
+  ${type_description_interfaces_INCLUDE_DIRS}
   "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
 )
 
