@@ -26,7 +26,7 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>image_pipeline</exec_depend>
-  
+
   <export>
     <build_type>ament_cmake</build_type>
     <!--<nodelet plugin="${prefix}/nodelet_plugins.xml" />-->

@@ -14,7 +14,6 @@ def generate_launch_description():
             executable='kinect2_bridge',
             output='screen',
             parameters=[
-                    
                         {'base_name':'kinect2'},
                         {'sensor':''},
                         {'publish_tf':'true'},
@@ -34,7 +33,6 @@ def generate_launch_description():
                         {'bilateral_filter':'true'},
                         {'edge_aware_filter':'true'},
                         {'worker_threads':'4'},
-                    
                 ]
             ),
 
@@ -59,5 +57,4 @@ def generate_launch_description():
             ],
             output='screen',
         ),
-
     ])
