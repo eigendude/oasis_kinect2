@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(kinect2_bridge C CXX)
 
 cmake_policy(SET CMP0057 NEW)
@@ -21,63 +21,72 @@ ELSE()
   MESSAGE(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
 ENDIF()
 
-find_package(freenect2 REQUIRED HINTS "$ENV{HOME}/freenect2")
+################################################################################
+# Dependencies
+################################################################################
 
 find_package(ament_cmake REQUIRED)
 find_package(compressed_depth_image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(freenect2 REQUIRED HINTS "$ENV{HOME}/freenect2")
 find_package(kinect2_registration REQUIRED)
 find_package(LibUSB REQUIRED) # TODO: This should come from libfreenect2
-#find_package(nodelet REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(rcl_interfaces REQUIRED) # TODO
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(rcutils REQUIRED)
-find_package(rosidl_typesupport_interface REQUIRED) # TODO
-find_package(rmw REQUIRED) # TODO
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(TurboJPEG REQUIRED) # TODO: This should come from libfreenect2
 
-## System dependencies are found with CMake's conventions
-find_package(OpenCV REQUIRED)
+################################################################################
+# Soures
+################################################################################
 
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-###########
-## Build ##
-###########
-
-# Display additional files in qtcreator
-execute_process(COMMAND find ${PROJECT_SOURCE_DIR} -type f OUTPUT_VARIABLE FILES_STRING)
-string(REPLACE "\n" ";" FILES_LIST ${FILES_STRING})
-add_custom_target(additional_files_${PROJECT_NAME}
-  SOURCES
-  ${FILES_LIST}
-  ${PROJECT_SOURCE_DIR}/../README.md
+set(KINECT2_BRIDGE_SOURCES
+  src/bridge/kinect2_bridge.cpp
+  src/utils/time_utils.cpp
 )
 
-include_directories(include
-  ${OpenCV_INCLUDE_DIRS}
-  ${freenect2_INCLUDE_DIRS}
-  ${kinect2_registration_INCLUDE_DIRS}
-  # TODO
-  ${kinect2_registration_DIR}/../../../include
-  ${compressed_depth_image_transport_INCLUDE_DIRS}
-  # TODO
-  ${compressed_depth_image_transport_DIR}/../../../include
-  ${cv_bridge_INCLUDE_DIRS}
-  ${rcl_interfaces_INCLUDE_DIRS} # TODO
-  ${rclcpp_INCLUDE_DIRS}
-  ${rcutils_INCLUDE_DIRS}
-  ${rmw_INCLUDE_DIRS} # TODO
-  ${sensor_msgs_INCLUDE_DIRS}
-  ${std_msgs_INCLUDE_DIRS}
-  ${tf2_INCLUDE_DIRS}
+################################################################################
+# Libraries
+################################################################################
+
+set(KINECT2_BRIDGE_LIBRARIES
+  ${compressed_depth_image_transport_LIBRARY}
+  ${cv_bridge_LIBRARY}
+  ${freenect2_LIBRARY}
+  ${kinect2_registration_LIBRARIES}
+  ${LibUSB_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  ${rclcpp_LIBRARY}
+  ${rcutils_LIBRARY}
+  ${sensor_msgs_LIBRARY}
+  ${std_msgs_LIBRARY}
+  ${tf2_LIBRARY}
+  ${TurboJPEG_LIBRARIES}
+  pthread
 )
+
+################################################################################
+# Ament dependencies
+################################################################################
+
+set(KINECT2_BRIDGE_AMENT_DEPENDS
+  compressed_depth_image_transport
+  cv_bridge
+  kinect2_registration
+  rclcpp
+  rcutils
+  sensor_msgs
+  std_msgs
+  tf2
+)
+
+################################################################################
+# Build Configuration
+################################################################################
 
 if(DEPTH_REG_OPENCL)
   add_definitions(-DDEPTH_REG_OPENCL)
@@ -85,110 +94,90 @@ endif()
 if(DEPTH_REG_CPU)
   add_definitions(-DDEPTH_REG_CPU)
 endif()
+
+# TODO: Modify path for target access
 add_definitions(-DK2_CALIB_PATH="${PROJECT_SOURCE_DIR}/data/")
 
-add_library(kinect2_bridge_nodelet SHARED
-  src/utils/time_utils.cpp
-  src/kinect2_bridge.cpp
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${compressed_depth_image_transport_INCLUDE_DIRS}
+  ${cv_bridge_INCLUDE_DIRS}
+  ${freenect2_INCLUDE_DIRS}
+  ${kinect2_registration_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+  ${rclcpp_INCLUDE_DIRS}
+  ${rcutils_INCLUDE_DIRS}
+  ${sensor_msgs_INCLUDE_DIRS}
+  ${std_msgs_INCLUDE_DIRS}
+  ${tf2_INCLUDE_DIRS}
 )
-target_link_libraries(kinect2_bridge_nodelet
-  ${OpenCV_LIBRARIES}
-  ${freenect2_LIBRARY}
-  ${kinect2_registration_LIBRARY}
-  ${LibUSB_LIBRARIES}
-  ${compressed_depth_image_transport_LIBRARY}
-  ${cv_bridge_LIBRARY}
-  ${rclcpp_LIBRARY}
-  ${rcutils_LIBRARY}
-  ${sensor_msgs_LIBRARY}
-  ${std_msgs_LIBRARY}
-  ${tf2_LIBRARY}
-  ${TurboJPEG_LIBRARIES}
-  pthread
-)
-ament_target_dependencies(kinect2_bridge_nodelet
-  compressed_depth_image_transport
-  cv_bridge
-  kinect2_registration
-  #nodelet
-  rclcpp
-  rcutils
-  sensor_msgs
-  std_msgs
-  tf2
-)
+
+################################################################################
+# Nodes
+################################################################################
+
+#
+# kinect2_bridge node
+#
 
 add_executable(kinect2_bridge
-  src/utils/time_utils.cpp
-  src/kinect2_bridge.cpp
+  ${KINECT2_BRIDGE_SOURCES}
+  src/cli/kinect2_bridge_node.cpp
 )
 target_link_libraries(kinect2_bridge
-  ${OpenCV_LIBRARIES}
-  ${freenect2_LIBRARY}
-  ${kinect2_registration_LIBRARY}
-  # TODO
-  ${kinect2_registration_DIR}/../../../lib/kinect2_registration/libkinect2_registration.so
-  ${LibUSB_LIBRARIES}
-  ${compressed_depth_image_transport_LIBRARY}
-  ${cv_bridge_LIBRARY}
-  ${rclcpp_LIBRARY}
-  ${rcutils_LIBRARY}
-  ${sensor_msgs_LIBRARY}
-  ${std_msgs_LIBRARY}
-  ${tf2_LIBRARY}
-  ${TurboJPEG_LIBRARIES}
-  pthread
+  ${KINECT2_BRIDGE_LIBRARIES}
 )
 ament_target_dependencies(kinect2_bridge
-  compressed_depth_image_transport
-  cv_bridge
-  kinect2_registration
-  #nodelet
-  #rcl_interfaces
-  rclcpp
-  rcutils
-  #rosidl_typesupport_interface # TODO
-  #rmw # TODO
-  sensor_msgs
-  std_msgs
-  tf2
+  ${KINECT2_BRIDGE_AMENT_DEPENDS}
 )
 
-#############
-## Install ##
-#############
+################################################################################
+# Components
+################################################################################
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION bin/${PROJECT_NAME}
-# )
+#
+# kinect2_bridge component
+#
 
-## Mark executables and/or libraries for installation
-install(TARGETS kinect2_bridge kinect2_bridge_nodelet
+add_library(kinect2_bridge_component SHARED
+  ${KINECT2_BRIDGE_SOURCES}
+  src/components/kinect2_bridge_component.cpp
+)
+target_link_libraries(kinect2_bridge_component
+  ${KINECT2_BRIDGE_LIBRARIES}
+)
+ament_target_dependencies(kinect2_bridge_component
+  ${KINECT2_BRIDGE_AMENT_DEPENDS}
+  rclcpp_components
+)
+
+# Register the component
+rclcpp_components_register_node(
+  kinect2_bridge_component
+  PLUGIN "kinect2_bridge::Kinect2BridgeComponent"
+  EXECUTABLE kinect2_bridge_component_node
+)
+
+################################################################################
+# Install
+################################################################################
+
+# Mark executables and/or libraries for installation
+install(
+  TARGETS
+    kinect2_bridge
+    kinect2_bridge_component
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-## Mark cpp header files for installation
+# Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
-)
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-install(DIRECTORY
-  launch
-  # myfile2
-  DESTINATION share/${PROJECT_NAME}
-)
-install(FILES
-  nodelet_plugins.xml
-  # myfile2
-  DESTINATION share/${PROJECT_NAME}
 )
 
 # Install data files
@@ -197,9 +186,9 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
-#############
-## Testing ##
-#############
+################################################################################
+# Testing
+################################################################################
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -214,8 +203,11 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-##############################
-## Declare an ament Package ##
-##############################
+################################################################################
+# Declare an ament Package
+################################################################################
+
+# Export the component so that the plugin XML is generated
+ament_export_dependencies(rclcpp_components)
 
 ament_package()
