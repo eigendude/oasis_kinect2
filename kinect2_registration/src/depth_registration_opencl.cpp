@@ -30,7 +30,7 @@
 #endif //CL_VERSION_1_2
 #endif //LIBFREENECT2_OPENCL_ICD_LOADER_IS_OLD
 
-#include <CL/cl.hpp>
+#include <CL/opencl.hpp>
 
 #ifndef REG_OPENCL_FILE
 #define REG_OPENCL_FILE ""
