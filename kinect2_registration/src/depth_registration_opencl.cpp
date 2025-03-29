@@ -27,16 +27,10 @@
 #include <CL/opencl.hpp>
 */
 
+#define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include <CL/opencl.hpp>
-
-static_assert(CL_HPP_TARGET_OPENCL_VERSION == 120, "Target version mismatch");
-static_assert(CL_HPP_MINIMUM_OPENCL_VERSION == 120, "Minimum version mismatch");
-static_assert(std::is_same<cl::Program::Sources, std::vector<std::pair<const char*, size_t>>>::value,
-              "cl::Program::Sources is not using legacy pair form");
-
-
 
 #ifndef REG_OPENCL_FILE
 #define REG_OPENCL_FILE ""
