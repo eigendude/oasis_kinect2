@@ -20,7 +20,7 @@ DepthRegistrationCPU::~DepthRegistrationCPU()
 {
 }
 
-bool DepthRegistrationCPU::init(const int deviceId)
+bool DepthRegistrationCPU::init(rclcpp::Logger& logger, const int deviceId)
 {
   createLookup();
 
@@ -165,7 +165,7 @@ void DepthRegistrationCPU::projectDepth(const cv::Mat &scaled, cv::Mat &register
   }
 }
 
-bool DepthRegistrationCPU::registerDepth(const cv::Mat &depth, cv::Mat &registered)
+bool DepthRegistrationCPU::registerDepth(rclcpp::Logger& logger, const cv::Mat &depth, cv::Mat &registered)
 {
   cv::Mat scaled;
   remapDepth(depth, scaled);

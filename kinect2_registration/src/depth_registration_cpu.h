@@ -26,9 +26,9 @@ public:
 
   ~DepthRegistrationCPU();
 
-  bool init(const int deviceId);
+  bool init(rclcpp::Logger& logger, const int deviceId);
 
-  bool registerDepth(const cv::Mat &depth, cv::Mat &registered);
+  bool registerDepth(rclcpp::Logger& logger, const cv::Mat &depth, cv::Mat &registered);
 
 private:
   void createLookup();

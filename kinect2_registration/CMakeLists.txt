@@ -26,7 +26,7 @@ find_package(ament_cmake REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Eigen3)
-#find_package(OpenCL) # TODO
+find_package(OpenCL)
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
 
@@ -56,13 +56,13 @@ if(OpenCL_FOUND)
   message(STATUS "OpenCL based depth registration enabled")
   set(EXPORTED_DEPENDENCIES OpenCL)
 
-  if(UNIX AND NOT APPLE)
-    include(CheckOpenCLICDLoader)
-    if(OpenCL_C_WORKS AND NOT OpenCL_CXX_WORKS)
-      set(KINECT2_OPENCL_ICD_LOADER_IS_OLD 1)
-      message(WARNING "Your libOpenCL.so is incompatible with CL/cl.h. Install ocl-icd-opencl-dev to update libOpenCL.so?")
-    endif()
-  endif()
+  # Force the OpenCL C++ bindings to use the legacy interface (OpenCL 1.2)
+  add_compile_definitions(
+    CL_HPP_TARGET_OPENCL_VERSION=120
+    CL_HPP_MINIMUM_OPENCL_VERSION=120
+    CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY
+  )
+
   include_directories(${OpenCL_INCLUDE_DIRS})
 
   set(DEPTH_REG_OPENCL ON)
@@ -92,7 +92,7 @@ add_custom_target(additional_files_${PROJECT_NAME}
   ${FILES_LIST}
 )
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/include/internal")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if(DEPTH_REG_CPU)
   set(MODULES ${MODULES} src/depth_registration_cpu.cpp)
