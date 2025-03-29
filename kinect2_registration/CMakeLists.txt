@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(kinect2_registration C CXX)
 
 cmake_policy(SET CMP0057 NEW)
@@ -115,22 +115,19 @@ target_link_libraries(kinect2_registration
   ${MODULE_LIBS}
 )
 
+# Namespaced target for modern CMake
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS kinect2_registration)
+
 #############
 ## Install ##
 #############
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_registration
-#   ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
-#   RUNTIME DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
@@ -140,12 +137,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION share/${PROJECT_NAME}
-# )
+ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
+ament_export_dependencies(OpenCV rclcpp Eigen3)
 
 ##############################
 ## Declare an ament Package ##
