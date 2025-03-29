@@ -830,32 +830,7 @@ void Kinect2Bridge::main()
   auto now = std::chrono::steady_clock::now();
 
   if(now - fpsTime >= 3.0s)
-  {
-    size_t framesIrDepth = frameIrDepth - oldFrameIrDepth;
-    size_t framesColor = frameColor - oldFrameColor;
-    oldFrameIrDepth = frameIrDepth;
-    oldFrameColor = frameColor;
-
-    lockTime.lock();
-    std::chrono::steady_clock::time_point epoch{};
-    auto tColor = epoch + elapsedTimeColor;
-    auto tDepth = epoch + elapsedTimeIrDepth;
-    elapsedTimeColor = 0s;
-    elapsedTimeIrDepth = 0s;
-    lockTime.unlock();
-
-    if(isSubscribedDepth)
-    {
-      // TODO
-      OUT_INFO(node->get_logger(), "depth processing: " FG_YELLOW "~" << /*(tDepth / framesIrDepth) * 1000 << "ms" NO_COLOR " (~" << framesIrDepth / tDepth << "Hz) publishing rate: " FG_YELLOW "~" << framesIrDepth / fpsTime << "Hz"*/ NO_COLOR);
-    }
-    if(isSubscribedColor)
-    {
-      // TODO
-      OUT_INFO(node->get_logger(), "color processing: " FG_YELLOW "~" << /*(tColor / framesColor) * 1000 << "ms" NO_COLOR " (~" << framesColor / tColor << "Hz) publishing rate: " FG_YELLOW "~" << framesColor / fpsTime << "Hz"*/ NO_COLOR);
-    }
     fpsTime = now;
-  }
 
   if(now >= nextFrame)
   {
