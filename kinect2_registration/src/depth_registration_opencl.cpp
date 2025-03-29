@@ -19,17 +19,10 @@
 
 #include <kinect2_registration/kinect2_console.h>
 
-/*
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define CL_USE_DEPRECATED_OPENCL_2_0_APIS
+// Force the OpenCL C++ bindings to use the legacy interface (OpenCL 1.2)
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
-#include <CL/opencl.hpp>
-*/
-
 #define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include <CL/opencl.hpp>
 
 #ifndef REG_OPENCL_FILE
