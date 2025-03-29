@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(kinect2_registration C CXX)
 
 cmake_policy(SET CMP0057 NEW)
@@ -21,18 +21,18 @@ ENDIF()
 # additional cmake modules
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# enable ament exports
 find_package(ament_cmake REQUIRED)
-find_package(cmake_modules QUIET)
 
 ## System dependencies are found with CMake's conventions
+find_package(Eigen3)
+#find_package(OpenCL) # TODO
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
-find_package(Eigen3)
-#find_package(OpenCL)
+
+# ROS 2 is used for logging
 find_package(rclcpp REQUIRED)
-find_package(rosidl_typesupport_interface REQUIRED) # TODO
-find_package(rmw REQUIRED) # TODO
-find_package(type_description_interfaces REQUIRED) # TODO
+find_package(rcutils REQUIRED)
 
 if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -92,14 +92,7 @@ add_custom_target(additional_files_${PROJECT_NAME}
   ${FILES_LIST}
 )
 
-include_directories(include
-  ${OpenCV_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS}
-  ${rosidl_typesupport_interface_INCLUDE_DIRS}
-  ${rmw_INCLUDE_DIRS}
-  ${type_description_interfaces_INCLUDE_DIRS}
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
-)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/include/internal")
 
 if(DEPTH_REG_CPU)
   set(MODULES ${MODULES} src/depth_registration_cpu.cpp)
@@ -117,22 +110,25 @@ target_link_libraries(kinect2_registration
   ${MODULE_LIBS}
 )
 
+# Namespaced target for modern CMake
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS kinect2_registration)
+
+# Add ROS 2 dependencies
+ament_target_dependencies(kinect2_registration
+  rclcpp
+  rcutils
+)
+
 #############
 ## Install ##
 #############
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_registration
-#   ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
-#   RUNTIME DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 ## Mark cpp header files for installation
@@ -142,12 +138,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION share/${PROJECT_NAME}
-# )
+ament_export_targets(${PROJECT_NAME}Targets HAS_LIBRARY_TARGET)
+ament_export_dependencies(OpenCV rclcpp Eigen3)
 
 ##############################
 ## Declare an ament Package ##
