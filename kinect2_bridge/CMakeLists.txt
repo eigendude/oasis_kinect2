@@ -30,6 +30,7 @@ find_package(compressed_depth_image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(Eigen3)
 find_package(freenect2 REQUIRED HINTS "$ENV{HOME}/freenect2")
+find_package(image_transport REQUIRED)
 find_package(kinect2_registration REQUIRED)
 find_package(LibUSB REQUIRED) # TODO: This should come from libfreenect2
 find_package(OpenCL)
@@ -49,6 +50,10 @@ find_package(TurboJPEG REQUIRED) # TODO: This should come from libfreenect2
 set(KINECT2_BRIDGE_SOURCES
   src/bridge/kinect2_bridge.cpp
   src/utils/time_utils.cpp
+)
+
+set(KINECT2_DOWNSCALER_SOURCES
+  src/image/kinect2_downscaler.cpp
 )
 
 ################################################################################
@@ -71,6 +76,16 @@ set(KINECT2_BRIDGE_LIBRARIES
   pthread
 )
 
+SET(KINECT2_DOWNSCALER_LIBRARIES
+  ${cv_bridge_LIBRARY}
+  ${image_transport_LIBRARY}
+  ${OpenCV_LIBRARIES}
+  ${rclcpp_LIBRARY}
+  ${rcutils_LIBRARY}
+  ${sensor_msgs_LIBRARY}
+  ${std_msgs_LIBRARY}
+)
+
 ################################################################################
 # Ament dependencies
 ################################################################################
@@ -84,6 +99,15 @@ set(KINECT2_BRIDGE_AMENT_DEPENDS
   sensor_msgs
   std_msgs
   tf2
+)
+
+set(KINECT2_DOWNSCALER_AMENT_DEPENDS
+  cv_bridge
+  image_transport
+  rclcpp
+  rcutils
+  sensor_msgs
+  std_msgs
 )
 
 ################################################################################
@@ -106,6 +130,7 @@ include_directories(
   ${compressed_depth_image_transport_INCLUDE_DIRS}
   ${cv_bridge_INCLUDE_DIRS}
   ${freenect2_INCLUDE_DIRS}
+  ${image_transport_INCLUDE_DIRS}
   ${kinect2_registration_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${rclcpp_INCLUDE_DIRS}
@@ -132,6 +157,21 @@ target_link_libraries(kinect2_bridge
 )
 ament_target_dependencies(kinect2_bridge
   ${KINECT2_BRIDGE_AMENT_DEPENDS}
+)
+
+#
+# kinect2_downscaler node
+#
+
+add_executable(kinect2_downscaler
+  ${KINECT2_DOWNSCALER_SOURCES}
+  src/cli/kinect2_downscaler_node.cpp
+)
+target_link_libraries(kinect2_downscaler
+  ${KINECT2_DOWNSCALER_LIBRARIES}
+)
+ament_target_dependencies(kinect2_downscaler
+  ${KINECT2_DOWNSCALER_AMENT_DEPENDS}
 )
 
 ################################################################################
@@ -161,6 +201,29 @@ rclcpp_components_register_node(
   EXECUTABLE kinect2_bridge_component_node
 )
 
+#
+# kinect2_downscaler component
+#
+
+add_library(kinect2_downscaler_component SHARED
+  ${KINECT2_DOWNSCALER_SOURCES}
+  src/components/kinect2_downscaler_component.cpp
+)
+target_link_libraries(kinect2_downscaler_component
+  ${KINECT2_DOWNSCALER_LIBRARIES}
+)
+ament_target_dependencies(kinect2_downscaler_component
+  ${KINECT2_DOWNSCALER_AMENT_DEPENDS}
+  rclcpp_components
+)
+
+# Register the component
+rclcpp_components_register_node(
+  kinect2_downscaler_component
+  PLUGIN "${PROJECT_NAME}::Kinect2DownscalerComponent"
+  EXECUTABLE kinect2_downscaler_component_node
+)
+
 ################################################################################
 # Install
 ################################################################################
@@ -170,6 +233,8 @@ install(
   TARGETS
     kinect2_bridge
     kinect2_bridge_component
+    kinect2_downscaler
+    kinect2_downscaler_component
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
