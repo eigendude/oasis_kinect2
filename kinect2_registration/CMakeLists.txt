@@ -56,8 +56,9 @@ if(OpenCL_FOUND)
   message(STATUS "OpenCL based depth registration enabled")
   set(EXPORTED_DEPENDENCIES OpenCL)
 
-  # Force OpenCL C++ bindings to target OpenCL 1.2 for compatibility
+  # Force the OpenCL C++ bindings to use the legacy interface (OpenCL 1.2)
   add_compile_definitions(CL_HPP_TARGET_OPENCL_VERSION=120)
+  add_compile_definitions(CL_HPP_MINIMUM_OPENCL_VERSION=120)
 
   if(UNIX AND NOT APPLE)
     include(CheckOpenCLICDLoader)
