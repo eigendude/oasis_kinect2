@@ -274,11 +274,13 @@ bool Kinect2Bridge::initRegistration(const std::string &method, const int32_t de
     return false;
   }
 
-  depthRegLowRes = DepthRegistration::New(node->get_logger(), reg);
-  depthRegHighRes = DepthRegistration::New(node->get_logger(), reg);
+  rclcpp::Logger logger{node->get_logger()};
 
-  if(!depthRegLowRes->init(cameraMatrixLowRes, sizeLowRes, cameraMatrixDepth, sizeIr, distortionDepth, rotation, translation, 0.5f, maxDepth, device) ||
-     !depthRegHighRes->init(cameraMatrixColor, sizeColor, cameraMatrixDepth, sizeIr, distortionDepth, rotation, translation, 0.5f, maxDepth, device))
+  depthRegLowRes = DepthRegistration::New(logger, reg);
+  depthRegHighRes = DepthRegistration::New(logger, reg);
+
+  if(!depthRegLowRes->init(logger, cameraMatrixLowRes, sizeLowRes, cameraMatrixDepth, sizeIr, distortionDepth, rotation, translation, 0.5f, maxDepth, device) ||
+     !depthRegHighRes->init(logger, cameraMatrixColor, sizeColor, cameraMatrixDepth, sizeIr, distortionDepth, rotation, translation, 0.5f, maxDepth, device))
   {
     delete depthRegLowRes;
     delete depthRegHighRes;
@@ -1112,13 +1114,15 @@ void Kinect2Bridge::processIrDepth(const cv::Mat &depth, std::vector<cv::Mat> &i
   if(status[DEPTH_QHD])
   {
     lockRegLowRes.lock();
-    depthRegLowRes->registerDepth(depthShifted, images[DEPTH_QHD]);
+    rclcpp::Logger logger{node->get_logger()};
+    depthRegLowRes->registerDepth(logger, depthShifted, images[DEPTH_QHD]);
     lockRegLowRes.unlock();
   }
   if(status[DEPTH_HD])
   {
     lockRegHighRes.lock();
-    depthRegHighRes->registerDepth(depthShifted, images[DEPTH_HD]);
+    rclcpp::Logger logger{node->get_logger()};
+    depthRegHighRes->registerDepth(logger, depthShifted, images[DEPTH_HD]);
     lockRegHighRes.unlock();
   }
 }

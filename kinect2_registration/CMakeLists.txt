@@ -26,7 +26,7 @@ find_package(ament_cmake REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Eigen3)
-#find_package(OpenCL) # TODO
+find_package(OpenCL)
 find_package(OpenCV REQUIRED)
 find_package(OpenMP)
 
