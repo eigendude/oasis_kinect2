@@ -28,7 +28,8 @@ DepthRegistration::~DepthRegistration()
 {
 }
 
-bool DepthRegistration::init(const cv::Mat &cameraMatrixRegistered, const cv::Size &sizeRegistered, const cv::Mat &cameraMatrixDepth, const cv::Size &sizeDepth,
+bool DepthRegistration::init(rclcpp::Logger& logger,
+                             const cv::Mat &cameraMatrixRegistered, const cv::Size &sizeRegistered, const cv::Mat &cameraMatrixDepth, const cv::Size &sizeDepth,
                              const cv::Mat &distortionDepth, const cv::Mat &rotation, const cv::Mat &translation,
                              const float zNear, const float zFar, const int deviceId)
 {
@@ -43,10 +44,10 @@ bool DepthRegistration::init(const cv::Mat &cameraMatrixRegistered, const cv::Si
 
   cv::initUndistortRectifyMap(cameraMatrixDepth, distortionDepth, cv::Mat(), cameraMatrixRegistered, sizeRegistered, CV_32FC1, mapX, mapY);
 
-  return init(deviceId);
+  return init(logger, deviceId);
 }
 
-DepthRegistration *DepthRegistration::New(rclcpp::Logger logger, Method method)
+DepthRegistration *DepthRegistration::New(rclcpp::Logger& logger, Method method)
 {
   if(method == DEFAULT)
   {

@@ -28,9 +28,11 @@ ENDIF()
 find_package(ament_cmake REQUIRED)
 find_package(compressed_depth_image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(Eigen3)
 find_package(freenect2 REQUIRED HINTS "$ENV{HOME}/freenect2")
 find_package(kinect2_registration REQUIRED)
 find_package(LibUSB REQUIRED) # TODO: This should come from libfreenect2
+find_package(OpenCL)
 find_package(OpenCV REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -88,10 +90,10 @@ set(KINECT2_BRIDGE_AMENT_DEPENDS
 # Build Configuration
 ################################################################################
 
-if(DEPTH_REG_OPENCL)
+if(OpenCL_FOUND)
   add_definitions(-DDEPTH_REG_OPENCL)
 endif()
-if(DEPTH_REG_CPU)
+if(EIGEN3_FOUND)
   add_definitions(-DDEPTH_REG_CPU)
 endif()
 
