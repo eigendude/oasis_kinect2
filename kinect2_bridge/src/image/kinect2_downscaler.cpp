@@ -11,6 +11,8 @@
 
 #include "kinect2_downscaler.h"
 
+#include "kinect2_bridge/kinect2_definitions.h"
+
 #include <algorithm>
 #include <cv_bridge/cv_bridge.hpp>
 #include <image_transport/image_transport.hpp>
@@ -22,10 +24,6 @@
 
 namespace
 {
-// TODO: Resolve topic using node, image_transport has buggy topic resolving
-constexpr const char* KINECT2_HD_TOPIC = "/oasis/kinect2/qhd/image_color";
-constexpr const char* KINECT2_SD_TOPIC = "/oasis/kinect2/sd/image_color";
-
 constexpr unsigned int DOWNSCALED_maxWidth = 640;
 constexpr unsigned int DOWNSCALED_maxHeight = 480;
 }
@@ -33,12 +31,17 @@ constexpr unsigned int DOWNSCALED_maxHeight = 480;
 Kinect2Downscaler::Kinect2Downscaler(rclcpp::Node& node)
   : node(node)
 {
+  this->node.declare_parameter<std::string>("base_name", K2_DEFAULT_NS);
 }
 
 bool Kinect2Downscaler::start()
 {
-  publisher = image_transport::create_publisher(&node, KINECT2_SD_TOPIC);
-  subscriber = image_transport::create_subscription(&node, KINECT2_HD_TOPIC,
+  std::string base_name;
+
+  node.get_parameter_or("base_name", base_name, std::string(K2_DEFAULT_NS));
+
+  publisher = image_transport::create_publisher(&node, base_name + K2_TOPIC_SD + K2_TOPIC_IMAGE_COLOR);
+  subscriber = image_transport::create_subscription(&node, base_name + K2_TOPIC_QHD + K2_TOPIC_IMAGE_COLOR,
     [this](const auto& msg)
     {
       OnImage(msg);
