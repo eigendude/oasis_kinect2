@@ -99,7 +99,7 @@ def generate_launch_description() -> LaunchDescription:
         namespace=ROS_NAMESPACE,
         package="kinect2_bridge",
         executable="kinect2_bridge",
-        name=f"kinect2_bridge",
+        name="kinect2_bridge",
         output="screen",
     )
     ld.add_action(kinect2_bridge_node)
@@ -108,7 +108,7 @@ def generate_launch_description() -> LaunchDescription:
         namespace=ROS_NAMESPACE,
         package="kinect2_bridge",
         executable="kinect2_downscaler",
-        name=f"kinect2_downscaler",
+        name="kinect2_downscaler",
         output="screen",
     )
     ld.add_action(kinect2_downscaler_node)
@@ -116,7 +116,7 @@ def generate_launch_description() -> LaunchDescription:
     # Example using a container
     kinect_container = ComposableNodeContainer(
         namespace=ROS_NAMESPACE,
-        name=f"kinect2_container_{HOSTNAME}",
+        name="kinect2_container",
         package="rclcpp_components",
         executable="component_container",
         output="screen",
@@ -124,12 +124,12 @@ def generate_launch_description() -> LaunchDescription:
             ComposableNode(
                 package="kinect2_bridge",
                 plugin="kinect2_bridge::Kinect2BridgeComponent",
-                name=f"kinect2_bridge_{HOSTNAME}",
+                name="kinect2_bridge",
             ),
             ComposableNode(
                 package="kinect2_bridge",
                 plugin="kinect2_bridge::Kinect2DownscalerComponent",
-                name=f"kinect2_downscaler_{HOSTNAME}",
+                name="kinect2_downscaler",
             ),
         ],
     )
