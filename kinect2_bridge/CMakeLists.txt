@@ -228,16 +228,24 @@ rclcpp_components_register_node(
 # Install
 ################################################################################
 
-# Mark executables and/or libraries for installation
+# Mark executables for installation
 install(
   TARGETS
     kinect2_bridge
-    kinect2_bridge_component
     kinect2_downscaler
-    kinect2_downscaler_component
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+# Mark components for installation
+install(
+  TARGETS
+    kinect2_bridge_component
+    kinect2_downscaler_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib
 )
 
 # Mark cpp header files for installation
