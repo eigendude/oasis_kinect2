@@ -126,9 +126,9 @@ ament_target_dependencies(kinect2_registration
 ## Mark executables and/or libraries for installation
 install(TARGETS kinect2_registration
   EXPORT ${PROJECT_NAME}Targets
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib
 )
 
 ## Mark cpp header files for installation
