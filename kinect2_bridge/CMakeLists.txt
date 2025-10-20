@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10...4.0)
 project(kinect2_bridge C CXX)
 
 cmake_policy(SET CMP0057 NEW)

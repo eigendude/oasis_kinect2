@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.10...4.0)
 project(kinect2_viewer CXX)
 
 cmake_policy(SET CMP0057 NEW)
