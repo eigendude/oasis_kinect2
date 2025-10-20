@@ -62,28 +62,28 @@ set(KINECT2_DOWNSCALER_SOURCES
 
 set(KINECT2_BRIDGE_LIBRARIES
   ${compressed_depth_image_transport_LIBRARY}
-  ${cv_bridge_LIBRARY}
+  cv_bridge::cv_bridge
   ${freenect2_LIBRARY}
-  ${kinect2_registration_LIBRARIES}
+  kinect2_registration::kinect2_registration
   ${LibUSB_LIBRARIES}
   ${OpenCV_LIBRARIES}
-  ${rclcpp_LIBRARY}
-  ${rcutils_LIBRARY}
-  ${sensor_msgs_LIBRARY}
-  ${std_msgs_LIBRARY}
-  ${tf2_LIBRARY}
-  ${TurboJPEG_LIBRARIES}
   pthread
+  rclcpp::rclcpp
+  rcutils::rcutils
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  tf2::tf2
+  ${TurboJPEG_LIBRARIES}
 )
 
 SET(KINECT2_DOWNSCALER_LIBRARIES
-  ${cv_bridge_LIBRARY}
-  ${image_transport_LIBRARY}
+  cv_bridge::cv_bridge
+  image_transport::image_transport
   ${OpenCV_LIBRARIES}
-  ${rclcpp_LIBRARY}
-  ${rcutils_LIBRARY}
-  ${sensor_msgs_LIBRARY}
-  ${std_msgs_LIBRARY}
+  rclcpp::rclcpp
+  rcutils::rcutils
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
 )
 
 ################################################################################
@@ -127,17 +127,8 @@ add_definitions(-DK2_CALIB_PATH="${PROJECT_SOURCE_DIR}/data/")
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${compressed_depth_image_transport_INCLUDE_DIRS}
-  ${cv_bridge_INCLUDE_DIRS}
   ${freenect2_INCLUDE_DIRS}
-  ${image_transport_INCLUDE_DIRS}
-  ${kinect2_registration_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS}
-  ${rcutils_INCLUDE_DIRS}
-  ${sensor_msgs_INCLUDE_DIRS}
-  ${std_msgs_INCLUDE_DIRS}
-  ${tf2_INCLUDE_DIRS}
 )
 
 ################################################################################
@@ -155,9 +146,6 @@ add_executable(kinect2_bridge
 target_link_libraries(kinect2_bridge
   ${KINECT2_BRIDGE_LIBRARIES}
 )
-ament_target_dependencies(kinect2_bridge
-  ${KINECT2_BRIDGE_AMENT_DEPENDS}
-)
 
 #
 # kinect2_downscaler node
@@ -169,9 +157,6 @@ add_executable(kinect2_downscaler
 )
 target_link_libraries(kinect2_downscaler
   ${KINECT2_DOWNSCALER_LIBRARIES}
-)
-ament_target_dependencies(kinect2_downscaler
-  ${KINECT2_DOWNSCALER_AMENT_DEPENDS}
 )
 
 ################################################################################
@@ -188,10 +173,7 @@ add_library(kinect2_bridge_component SHARED
 )
 target_link_libraries(kinect2_bridge_component
   ${KINECT2_BRIDGE_LIBRARIES}
-)
-ament_target_dependencies(kinect2_bridge_component
-  ${KINECT2_BRIDGE_AMENT_DEPENDS}
-  rclcpp_components
+  rclcpp_components::component
 )
 
 # Register the component
@@ -211,10 +193,7 @@ add_library(kinect2_downscaler_component SHARED
 )
 target_link_libraries(kinect2_downscaler_component
   ${KINECT2_DOWNSCALER_LIBRARIES}
-)
-ament_target_dependencies(kinect2_downscaler_component
-  ${KINECT2_DOWNSCALER_AMENT_DEPENDS}
-  rclcpp_components
+  rclcpp_components::component
 )
 
 # Register the component

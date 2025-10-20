@@ -108,16 +108,12 @@ add_library(kinect2_registration SHARED src/kinect2_registration.cpp ${MODULES})
 target_link_libraries(kinect2_registration
   ${OpenCV_LIBRARIES}
   ${MODULE_LIBS}
+  rclcpp::rclcpp
+  rcutils::rcutils
 )
 
 # Namespaced target for modern CMake
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS kinect2_registration)
-
-# Add ROS 2 dependencies
-ament_target_dependencies(kinect2_registration
-  rclcpp
-  rcutils
-)
 
 #############
 ## Install ##
