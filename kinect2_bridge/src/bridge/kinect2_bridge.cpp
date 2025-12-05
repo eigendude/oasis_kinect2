@@ -389,14 +389,20 @@ void Kinect2Bridge::initConfig(const bool bilateral_filter, const bool edge_awar
 
 void Kinect2Bridge::initCompression(const int32_t jpegQuality, const int32_t pngLevel, const bool use_png)
 {
-  compressionParams.resize(7, 0);
-  compressionParams[0] = cv::IMWRITE_JPEG_QUALITY;
-  compressionParams[1] = jpegQuality;
-  compressionParams[2] = cv::IMWRITE_PNG_COMPRESSION;
-  compressionParams[3] = pngLevel;
-  compressionParams[4] = cv::IMWRITE_PNG_STRATEGY;
-  compressionParams[5] = cv::IMWRITE_PNG_STRATEGY_RLE;
-  compressionParams[6] = 0;
+  compressionParams.clear();
+  compressionParams.reserve(6);
+
+  // JPEG quality
+  compressionParams.push_back(cv::IMWRITE_JPEG_QUALITY);
+  compressionParams.push_back(jpegQuality);
+
+  // PNG compression level
+  compressionParams.push_back(cv::IMWRITE_PNG_COMPRESSION);
+  compressionParams.push_back(pngLevel);
+
+  // PNG strategy
+  compressionParams.push_back(cv::IMWRITE_PNG_STRATEGY);
+  compressionParams.push_back(cv::IMWRITE_PNG_STRATEGY_RLE);
 
   if(use_png)
   {
